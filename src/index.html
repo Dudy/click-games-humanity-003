@@ -18,10 +18,10 @@
             border: solid 1px black;
         }
     </style>
-  </head>styledy>
+  </head>
     <h1>Hello, world!</h1>
 
-    <div class="container-fluid" id="event-broker">
+    <div class="container-fluid">
 
         <div class="row">
             <div class="col-2">Ressource</div>
@@ -80,12 +80,23 @@
             holz: 0,
             holzArbeiter: 0,
             stein: 0,
-            steinArbeiter: 0
+            steinArbeiter: 0,
+
+            // eventListeners: [],
+            // addEventListener: function(eventListener) {
+            //     this.eventListeners.push(eventListener)
+            // },
+            // removeEventListener: function(eventListener) {
+            //     this.eventListeners = this.eventListeners.filter(item => item !== eventListener)
+            // },
+            // dispatchEvent: function(event) {
+            //     this.eventListeners.forEach((eventListener) => { eventListener.handleEvent(event) })
+            // }
         }
 
-        const createEmitter = function(element, type, payload) {
+        const createEmitter = function(type, payload) {
             return function() {
-                element.dispatchEvent(new CustomEvent(type, { bubbles: false, detail: payload }))
+                window.dispatchEvent(new CustomEvent(type, { detail: payload }))
             }
         }
 
@@ -96,7 +107,11 @@
             anzahlArbeiterElement.textContent = data.arbeiter
             zugewieseneArbeiterElement.textContent = data.holzArbeiter + data.steinArbeiter + " (" + (data.arbeiter - data.holzArbeiter - data.steinArbeiter) + " frei)"
 
-arbeiterElement.addEventListener('arbeiterzuweisung', function (e) { console.log('arbeiterElement'); console.log(e) }, false)
+// const aktualisierungArbeiter = function(daten) {
+//     anzahlArbeiterElement.textContent = data.arbeiter
+//     zugewieseneArbeiterElement.textContent = data.holzArbeiter + data.steinArbeiter + " (" + (data.arbeiter - data.holzArbeiter - data.steinArbeiter) + " frei)"
+// }
+// window.addEventListener('arbeiterzuweisung', function (e) { console.log('arbeiterElement'); console.log(e) }, false)
             
 
 
@@ -106,7 +121,7 @@ arbeiterElement.addEventListener('arbeiterzuweisung', function (e) { console.log
             const holzArbeiterZuweisenElement = document.getElementById('holz-arbeiter-zuweisen')
             anzahlHolzElement.textContent = data.holz
             zugewieseneArbeiterHolzElement.textContent = data.holzArbeiter
-            holzArbeiterZuweisenElement.addEventListener('click', createEmitter(holzArbeiterZuweisenElement, 'arbeiterzuweisung', { menge: 1 }))
+holzArbeiterZuweisenElement.addEventListener('click', createEmitter('arbeiterzuweisung', { menge: 1 }))
             
             
             
@@ -121,13 +136,28 @@ arbeiterElement.addEventListener('arbeiterzuweisung', function (e) { console.log
             
             
             
-            const eventBrokerElement = document.getElementById('event-broker')
             // aktualisiere data
-            eventBrokerElement.addEventListener('arbeiterzuweisung', function (e) { console.log('eventBrokerElement'); console.log(e) }, false)
+            const dataArbeiterzuweisung = function(event) {
+                data.holzArbeiter += event.detail.menge
+            }
+            window.addEventListener('arbeiterzuweisung', dataArbeiterzuweisung)
         }
 
         const mainLoop = function() {
             // TODO
+
+            const arbeiterElement = document.getElementById('arbeiter')
+            const anzahlArbeiterElement = document.getElementById('anzahl-arbeiter')
+            const zugewieseneArbeiterElement = document.getElementById('zugewiesene-arbeiter')
+            anzahlArbeiterElement.textContent = data.arbeiter
+            zugewieseneArbeiterElement.textContent = data.holzArbeiter + data.steinArbeiter + " (" + (data.arbeiter - data.holzArbeiter - data.steinArbeiter) + " frei)"
+
+            const anzahlHolzElement = document.getElementById('anzahl-holz')
+            const zugewieseneArbeiterHolzElement = document.getElementById('zugewiesene-arbeiter-holz')
+            const holzArbeiterZuweisenElement = document.getElementById('holz-arbeiter-zuweisen')
+            anzahlHolzElement.textContent = data.holz
+            zugewieseneArbeiterHolzElement.textContent = data.holzArbeiter
+
 
             setTimeout(mainLoop, 100) // alle 100 Millisekunden
         }
