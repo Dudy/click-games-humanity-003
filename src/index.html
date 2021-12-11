@@ -19,15 +19,24 @@
         }
     </style>
   </head>
+  <body>
     <h1>Zeitpunkt <span id="zeitpunkt">0</span></h1>
 
     <div class="container-fluid">
-
+        <h2>Siedlung</h2>
         <div class="row">
             <div class="col-2">Ressource</div>
             <div class="col-3">Anzahl</div>
-            <div class="col-3">zugewiesene Arbeiter</div>
+            <div class="col-3"></div>
             <div class="col-4">Aktionen</div>
+        </div>
+        <div class="row" id="wohnraum">
+            <div class="col-2">Wohnraum</div>
+            <div class="col-3"><span id="anzahl-wohnraum">0</span></div>
+            <div class="col-3"><span id="verwendeter-wohnraum">0</span></div>
+            <div class="col-4">
+                <button type="button" class="btn btn-primary" id="wohnhaus-1-bauen"><i class="bi bi-arrow-up-square"></i> Wohnhaus 1 bauen</button><span id="wohnhaus-1-bauen-kosten"> Kosten:</span>
+            </div>
         </div>
         <div class="row" id="arbeiter">
             <div class="col-2">Arbeiter</div>
@@ -36,6 +45,14 @@
             <div class="col-4">
                 <button type="button" class="btn btn-primary" id="arbeiter-erzeugen"><i class="bi bi-arrow-up-square"></i> Arbeiter erzeugen</button><span id="arbeiter-erzeugen-kosten"> Kosten:</span>
             </div>
+        </div>
+
+        <h2>Ressourcen</h2>
+        <div class="row">
+            <div class="col-2">Ressource</div>
+            <div class="col-3">Anzahl</div>
+            <div class="col-3">zugewiesene Arbeiter</div>
+            <div class="col-4">Aktionen</div>
         </div>
         <div class="row" id="holz">
             <div class="col-2">Holz</div>
@@ -78,6 +95,12 @@
     <script>
         const zeitpunktElement = document.getElementById('zeitpunkt')
         
+        const wohnraumElement = document.getElementById('wohnraum')
+        const anzahlWohnraumElement = document.getElementById('anzahl-wohnraum')
+        const verwendeterWohnraumElement = document.getElementById('verwendeter-wohnraum')
+        const wohnhaus1BauenElement = document.getElementById('wohnhaus-1-bauen')
+        const wohnhaus1BauenKostenElement = document.getElementById('wohnhaus-1-bauen-kosten')
+
         const arbeiterElement = document.getElementById('arbeiter')
         const anzahlArbeiterElement = document.getElementById('anzahl-arbeiter')
         const arbeiterErzeugenElement = document.getElementById('arbeiter-erzeugen')
@@ -102,13 +125,32 @@
         const data = {
             tick: 0,
             kosten: {
+                wohnhaus1: {
+                    holz: 20,
+                    stein: 10,
+                    fleisch: 0
+                },
                 arbeiter: {
                     holz: 1,
                     stein: 1,
                     fleisch: 10
                 }
             },
-            arbeiter: 1,
+            wohnraum: 0,
+            wohnraumBauen: function(menge) {
+                if (this.holz >= this.kosten.wohnhaus1.holz &&
+                    this.stein >= this.kosten.wohnhaus1.stein &&
+                    this.fleisch >= this.kosten.wohnhaus1.fleisch) {
+                    this.wohnraum += menge
+                    this.holz -= this.kosten.wohnhaus1.holz
+                    this.stein -= this.kosten.wohnhaus1.stein
+                    this.fleisch -= this.kosten.wohnhaus1.fleisch
+                }
+            },
+            freierWohnraum: function() {
+                return this.wohnraum - this.arbeiter
+            },
+            arbeiter: 0,
             arbeiterErzeugen: function(menge) {
                 if (this.holz >= this.kosten.arbeiter.holz &&
                     this.stein >= this.kosten.arbeiter.stein &&
@@ -122,7 +164,7 @@
             freieArbeiter: function() {
                 return this.arbeiter - this.holzArbeiter - this.steinArbeiter - this.fleischArbeiter
             },
-            holz: 0,
+            holz: 21,
             holzArbeiter: 0,
             holzArbeiterZuweisen: function(menge) {
                 if (this.freieArbeiter() >= menge) {
@@ -134,7 +176,7 @@
                     this.holzArbeiter -= menge
                 }
             },
-            stein: 0,
+            stein: 11,
             steinArbeiter: 0,
             steinArbeiterZuweisen: function(menge) {
                 if (this.freieArbeiter() >= menge) {
@@ -146,7 +188,7 @@
                     this.steinArbeiter -= menge
                 }
             },
-            fleisch: 0,
+            fleisch: 10,
             fleischArbeiter: 0,
             fleischArbeiterZuweisen: function(menge) {
                 if (this.freieArbeiter() >= menge) {
@@ -167,6 +209,7 @@
         }
 
         const init = function() {
+            wohnhaus1BauenElement.addEventListener('click', createEmitter('wohnraumbau', { typ: 'wohnraum', menge: 3 }))
             arbeiterErzeugenElement.addEventListener('click', createEmitter('arbeitererzeugung', { typ: 'arbeiter', menge: 1 }))
             holzArbeiterZuweisenElement.addEventListener('click', createEmitter('arbeiterzuweisung', { typ: 'holz', menge: 1 }))
             holzArbeiterFreigebenElement.addEventListener('click', createEmitter('arbeiterfreigabe', { typ: 'holz', menge: 1 }))
@@ -174,6 +217,16 @@
             steinArbeiterFreigebenElement.addEventListener('click', createEmitter('arbeiterfreigabe', { typ: 'stein', menge: 1 }))
             fleischArbeiterZuweisenElement.addEventListener('click', createEmitter('arbeiterzuweisung', { typ: 'fleisch', menge: 1 }))
             fleischArbeiterFreigebenElement.addEventListener('click', createEmitter('arbeiterfreigabe', { typ: 'fleisch', menge: 1 }))
+
+            const dataWohnraumbau = function(event) {
+                switch(event.detail.typ) {
+                    case 'wohnraum':
+                        data.wohnraumBauen(event.detail.menge)
+                        break
+                }
+                updateUI()
+            }
+            window.addEventListener('wohnraumbau', dataWohnraumbau)
 
             const dataArbeitererzeugung = function(event) {
                 switch(event.detail.typ) {
@@ -226,10 +279,15 @@
         }
 
         const updateUI = function() {
+            anzahlWohnraumElement.textContent = data.wohnraum
+            verwendeterWohnraumElement.textContent = data.wohnraum - data.freierWohnraum() + " (" + data.freierWohnraum() + " frei)"
+            wohnhaus1BauenKostenElement.textContent = " Kosten: " + data.kosten.wohnhaus1.holz + " Holz, " + data.kosten.wohnhaus1.stein + " Stein, " + data.kosten.wohnhaus1.fleisch + " Fleisch"
+            wohnhaus1BauenElement.disabled = data.holz < data.kosten.wohnhaus1.holz || data.stein < data.kosten.wohnhaus1.stein || data.fleisch < data.kosten.wohnhaus1.fleisch
+
             anzahlArbeiterElement.textContent = data.arbeiter
-            zugewieseneArbeiterElement.textContent = data.holzArbeiter + data.steinArbeiter + " (" + (data.arbeiter - data.holzArbeiter - data.steinArbeiter) + " frei)"
+            zugewieseneArbeiterElement.textContent = data.holzArbeiter + data.steinArbeiter + data.fleischArbeiter + " zugewiesen (" + (data.arbeiter - data.holzArbeiter - data.steinArbeiter - data.fleischArbeiter) + " frei)"
             arbeiterErzeugenKostenElement.textContent = " Kosten: " + data.kosten.arbeiter.holz + " Holz, " + data.kosten.arbeiter.stein + " Stein, " + data.kosten.arbeiter.fleisch + " Fleisch"
-            arbeiterErzeugenElement.disabled = data.holz < data.kosten.arbeiter.holz || data.stein < data.kosten.arbeiter.stein
+            arbeiterErzeugenElement.disabled = data.freierWohnraum() === 0 || data.holz < data.kosten.arbeiter.holz || data.stein < data.kosten.arbeiter.stein || data.fleisch < data.kosten.arbeiter.fleisch
 
             anzahlHolzElement.textContent = data.holz
             zugewieseneArbeiterHolzElement.textContent = data.holzArbeiter
