@@ -12,13 +12,17 @@ const TEMPLATE = `
         <div class="col-3"><span id="${ANZAHL_ARBEITER_ID}">0</span></div>
         <div class="col-3"><span id="${ZUGEWIESENE_ARBEITER_ID}">0</span></div>
         <div class="col-4">
-            <button
-                type="button"
-                class="btn btn-primary"
-                id="${ARBEITER_ERZEUGEN_ID}">
-                <i class="bi bi-arrow-up-square"></i> Arbeiter erzeugen
-            </button>
-            <span id="${ARBEITER_ERZEUGEN_KOSTEN_ID}"> Kosten:</span>
+            <div class="row">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="${ARBEITER_ERZEUGEN_ID}">
+                    <i class="bi bi-arrow-up-square"></i> Arbeiter erzeugen
+                </button>
+            </div>
+            <div class="row">
+                <span id="${ARBEITER_ERZEUGEN_KOSTEN_ID}"> Kosten:</span>
+            </div>
         </div>
     </div>
     `
@@ -30,8 +34,8 @@ export default class ArbeiterResource extends SiedlungResource {
         fleisch: 5
     }
 
-    constructor(data, globalUiUpdater) {
-        super(data, globalUiUpdater, TEMPLATE)
+    constructor(data) {
+        super(data, TEMPLATE)
 
         this.arbeiterElement = this.getElement(ARBEITER_ID)
         this.anzahlArbeiterElement = this.getElement(ANZAHL_ARBEITER_ID)
@@ -39,22 +43,8 @@ export default class ArbeiterResource extends SiedlungResource {
         this.arbeiterErzeugenKostenElement = this.getElement(ARBEITER_ERZEUGEN_KOSTEN_ID)
         this.zugewieseneArbeiterElement = this.getElement(ZUGEWIESENE_ARBEITER_ID)
 
-        /*
-        this.arbeiterErzeugenElement.addEventListener(
-            'click',
-            this.createEmitter('arbeitererzeugung', {
-                typ: 'arbeiter',
-                menge: 1
-            })
-        )
-        */
-
         this.arbeiterErzeugenElement.addEventListener('click', () => {
             this.erzeugeArbeiter()
-        })
-
-        this.arbeiterErzeugenElement.addEventListener('click', function () {
-            console.log(Date.now())
         })
     }
 

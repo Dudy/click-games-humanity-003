@@ -2,9 +2,8 @@ export default class SiedlungResource {
     data
     domElement
 
-    constructor(data, globalUiUpdater, template) {
+    constructor(data, template) {
         this.data = data
-        this.globalUiUpdater = globalUiUpdater
         this.domElement = document.createRange().createContextualFragment(template)
     }
 
@@ -23,6 +22,6 @@ export default class SiedlungResource {
     }
 
     globalUiUpdate() {
-        this.globalUiUpdater()
+        window.dispatchEvent(new CustomEvent('updateUI'))
     }
 }

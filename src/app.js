@@ -66,6 +66,9 @@ const data = {
     }
 }
 
+const wohnraumResource = new WohnraumResource(data)
+const arbeiterResource = new ArbeiterResource(data)
+
 const createEmitter = function (type, payload) {
     return function () {
         window.dispatchEvent(new CustomEvent(type, { detail: payload }))
@@ -114,6 +117,8 @@ const init = function () {
         updateUI()
     }
     window.addEventListener('arbeiterfreigabe', dataArbeiterfreigabe)
+
+    window.addEventListener('updateUI', updateUI)
 }
 
 const tick = function () {
@@ -144,13 +149,6 @@ const updateUI = function () {
     fleischArbeiterFreigebenElement.disabled = data.fleischArbeiter === 0
 }
 
-const globalUiUpdater = () => {
-    updateUI()
-}
-
-const wohnraumResource = new WohnraumResource(data, globalUiUpdater)
-const arbeiterResource = new ArbeiterResource(data, globalUiUpdater)
-
 const mainLoop = function () {
     tick()
     updateUI()
@@ -169,3 +167,4 @@ setTimeout(mainLoop, 0)
 //   Ressourcen vorhanden sind, was erfolgreich ist. Dann werden beide die Ressource erniedrigen, das kann
 //   dann aber unter null gehen.
 //   Verwende Queue, Semaphore, Singleton oder irgendwas, um data-Änderungen atomar zu machen.
+// - Erlaube kürzere Ticks.
