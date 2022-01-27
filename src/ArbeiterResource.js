@@ -27,11 +27,11 @@ export default class ArbeiterResource extends SiedlungResource {
     kosten = {
         holz: 1,
         stein: 1,
-        fleisch: 10
+        fleisch: 5
     }
 
-    constructor(data) {
-        super(data, TEMPLATE)
+    constructor(data, globalUiUpdater) {
+        super(data, globalUiUpdater, TEMPLATE)
 
         this.arbeiterElement = this.getElement(ARBEITER_ID)
         this.anzahlArbeiterElement = this.getElement(ANZAHL_ARBEITER_ID)
@@ -39,6 +39,7 @@ export default class ArbeiterResource extends SiedlungResource {
         this.arbeiterErzeugenKostenElement = this.getElement(ARBEITER_ERZEUGEN_KOSTEN_ID)
         this.zugewieseneArbeiterElement = this.getElement(ZUGEWIESENE_ARBEITER_ID)
 
+        /*
         this.arbeiterErzeugenElement.addEventListener(
             'click',
             this.createEmitter('arbeitererzeugung', {
@@ -46,26 +47,30 @@ export default class ArbeiterResource extends SiedlungResource {
                 menge: 1
             })
         )
+        */
+
+        this.arbeiterErzeugenElement.addEventListener('click', () => {
+            this.erzeugeArbeiter()
+        })
+
+        this.arbeiterErzeugenElement.addEventListener('click', function () {
+            console.log(Date.now())
+        })
     }
 
-    getTemplate() {
-        return this.template
-    }
-
-    getKosten() {
-        return this.kosten
-    }
-
-    doArbeiterErzeugen(menge) {
+    erzeugeArbeiter() {
+        const menge = 1
         if (this.data.holz >= this.kosten.holz && this.data.stein >= this.kosten.stein && this.data.fleisch >= this.kosten.fleisch) {
             this.data.arbeiter += menge
             this.data.holz -= this.kosten.holz
             this.data.stein -= this.kosten.stein
             this.data.fleisch -= this.kosten.fleisch
         }
+
+        this.globalUiUpdate()
     }
 
-    getFreieArbeiter() {
+    freieArbeiter() {
         return this.data.arbeiter - this.data.holzArbeiter - this.data.steinArbeiter - this.data.fleischArbeiter
     }
 
@@ -73,8 +78,7 @@ export default class ArbeiterResource extends SiedlungResource {
         this.anzahlArbeiterElement.textContent = this.data.arbeiter
         this.zugewieseneArbeiterElement.textContent =
             this.data.holzArbeiter + this.data.steinArbeiter + this.data.fleischArbeiter + ' zugewiesen ' + '(' + (this.data.arbeiter - this.data.holzArbeiter - this.data.steinArbeiter - this.data.fleischArbeiter) + ' frei)'
-        this.arbeiterErzeugenKostenElement.textContent = ' Kosten: ' + this.data.kosten.arbeiter.holz + ' Holz, ' + this.data.kosten.arbeiter.stein + ' Stein, ' + this.data.kosten.arbeiter.fleisch + ' Fleisch'
-        this.arbeiterErzeugenElement.disabled =
-            this.data.freierWohnraum() === 0 || this.data.holz < this.data.kosten.arbeiter.holz || this.data.stein < this.data.kosten.arbeiter.stein || this.data.fleisch < this.data.kosten.arbeiter.fleisch
+        this.arbeiterErzeugenKostenElement.textContent = ' Kosten: ' + this.kosten.holz + ' Holz, ' + this.kosten.stein + ' Stein, ' + this.kosten.fleisch + ' Fleisch'
+        this.arbeiterErzeugenElement.disabled = this.data.wohnraum - this.data.arbeiter < 1 || this.data.holz < this.kosten.holz || this.data.stein < this.kosten.stein || this.data.fleisch < this.kosten.fleisch
     }
 }
