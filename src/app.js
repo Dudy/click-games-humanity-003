@@ -1,22 +1,10 @@
-import WohnraumResource from './WohnraumResource.js'
-import ArbeiterResource from './ArbeiterResource.js'
+import WohnraumRessource from './ressourcen/siedlung/WohnraumRessource.js'
+import ArbeiterRessource from './ressourcen/siedlung/ArbeiterRessource.js'
+import HolzRessource from './ressourcen/rohstoffe/HolzRessource.js'
+import SteinRessource from './ressourcen/rohstoffe/SteinRessource.js'
+import FleischRessource from './ressourcen/rohstoffe/FleischRessource.js'
 
 const zeitpunktElement = document.getElementById('zeitpunkt')
-
-const anzahlHolzElement = document.getElementById('anzahl-holz')
-const zugewieseneArbeiterHolzElement = document.getElementById('zugewiesene-arbeiter-holz')
-const holzArbeiterZuweisenElement = document.getElementById('holz-arbeiter-zuweisen')
-const holzArbeiterFreigebenElement = document.getElementById('holz-arbeiter-freigeben')
-
-const anzahlSteineElement = document.getElementById('anzahl-steine')
-const zugewieseneArbeiterSteinElement = document.getElementById('zugewiesene-arbeiter-stein')
-const steinArbeiterZuweisenElement = document.getElementById('stein-arbeiter-zuweisen')
-const steinArbeiterFreigebenElement = document.getElementById('stein-arbeiter-freigeben')
-
-const anzahlFleischElement = document.getElementById('anzahl-fleisch')
-const zugewieseneArbeiterFleischElement = document.getElementById('zugewiesene-arbeiter-fleisch')
-const fleischArbeiterZuweisenElement = document.getElementById('fleisch-arbeiter-zuweisen')
-const fleischArbeiterFreigebenElement = document.getElementById('fleisch-arbeiter-freigeben')
 
 const data = {
     tick: 0,
@@ -66,8 +54,12 @@ const data = {
     }
 }
 
-const wohnraumResource = new WohnraumResource(data)
-const arbeiterResource = new ArbeiterResource(data)
+const wohnraumRessource = new WohnraumRessource(data)
+const arbeiterRessource = new ArbeiterRessource(data)
+
+const holzRessource = new HolzRessource(data)
+const steinRessource = new SteinRessource(data)
+const fleischRessource = new FleischRessource(data)
 
 const createEmitter = function (type, payload) {
     return function () {
@@ -76,47 +68,12 @@ const createEmitter = function (type, payload) {
 }
 
 const init = function () {
-    document.getElementById('siedlung').appendChild(wohnraumResource.getDomElement())
-    document.getElementById('siedlung').appendChild(arbeiterResource.getDomElement())
+    document.getElementById('siedlung').appendChild(wohnraumRessource.getDomElement())
+    document.getElementById('siedlung').appendChild(arbeiterRessource.getDomElement())
 
-    holzArbeiterZuweisenElement.addEventListener('click', createEmitter('arbeiterzuweisung', { typ: 'holz', menge: 1 }))
-    holzArbeiterFreigebenElement.addEventListener('click', createEmitter('arbeiterfreigabe', { typ: 'holz', menge: 1 }))
-    steinArbeiterZuweisenElement.addEventListener('click', createEmitter('arbeiterzuweisung', { typ: 'stein', menge: 1 }))
-    steinArbeiterFreigebenElement.addEventListener('click', createEmitter('arbeiterfreigabe', { typ: 'stein', menge: 1 }))
-    fleischArbeiterZuweisenElement.addEventListener('click', createEmitter('arbeiterzuweisung', { typ: 'fleisch', menge: 1 }))
-    fleischArbeiterFreigebenElement.addEventListener('click', createEmitter('arbeiterfreigabe', { typ: 'fleisch', menge: 1 }))
-
-    const dataArbeiterzuweisung = function (event) {
-        switch (event.detail.typ) {
-            case 'holz':
-                data.holzArbeiterZuweisen(event.detail.menge)
-                break
-            case 'stein':
-                data.steinArbeiterZuweisen(event.detail.menge)
-                break
-            case 'fleisch':
-                data.fleischArbeiterZuweisen(event.detail.menge)
-                break
-        }
-        updateUI()
-    }
-    window.addEventListener('arbeiterzuweisung', dataArbeiterzuweisung)
-
-    const dataArbeiterfreigabe = function (event) {
-        switch (event.detail.typ) {
-            case 'holz':
-                data.holzArbeiterFreigeben(event.detail.menge)
-                break
-            case 'stein':
-                data.steinArbeiterFreigeben(event.detail.menge)
-                break
-            case 'fleisch':
-                data.fleischArbeiterFreigeben(event.detail.menge)
-                break
-        }
-        updateUI()
-    }
-    window.addEventListener('arbeiterfreigabe', dataArbeiterfreigabe)
+    document.getElementById('ressourcen').appendChild(holzRessource.getDomElement())
+    document.getElementById('ressourcen').appendChild(steinRessource.getDomElement())
+    document.getElementById('ressourcen').appendChild(fleischRessource.getDomElement())
 
     window.addEventListener('updateUI', updateUI)
 }
@@ -130,23 +87,12 @@ const tick = function () {
 }
 
 const updateUI = function () {
-    wohnraumResource.updateUI()
-    arbeiterResource.updateUI()
+    wohnraumRessource.updateUI()
+    arbeiterRessource.updateUI()
 
-    anzahlHolzElement.textContent = data.holz
-    zugewieseneArbeiterHolzElement.textContent = data.holzArbeiter
-    holzArbeiterZuweisenElement.disabled = data.freieArbeiter() === 0
-    holzArbeiterFreigebenElement.disabled = data.holzArbeiter === 0
-
-    anzahlSteineElement.textContent = data.stein
-    zugewieseneArbeiterSteinElement.textContent = data.steinArbeiter
-    steinArbeiterZuweisenElement.disabled = data.freieArbeiter() === 0
-    steinArbeiterFreigebenElement.disabled = data.steinArbeiter === 0
-
-    anzahlFleischElement.textContent = data.fleisch
-    zugewieseneArbeiterFleischElement.textContent = data.fleischArbeiter
-    fleischArbeiterZuweisenElement.disabled = data.freieArbeiter() === 0
-    fleischArbeiterFreigebenElement.disabled = data.fleischArbeiter === 0
+    holzRessource.updateUI()
+    steinRessource.updateUI()
+    fleischRessource.updateUI()
 }
 
 const mainLoop = function () {
@@ -168,3 +114,11 @@ setTimeout(mainLoop, 0)
 //   dann aber unter null gehen.
 //   Verwende Queue, Semaphore, Singleton oder irgendwas, um data-Änderungen atomar zu machen.
 // - Erlaube kürzere Ticks.
+// - neuer Punkt bei "Siedlung: Kapital"
+// - anstatt Überschrift "Aktionen" (ganz unten): "Forschung"
+// - verwende die SieldungRessource auch als root-UI für den ganzen Siedlungsblock
+// - entferne alle Klassen, die ES6 Module sind schon gescoped, da braucht's keine Klassen
+//   mehr (nur die exportierten Dinger müssen eindeutig sein)
+// - Definiere den Startzustand in einem JSON File. Lies es und erzeuge daraus generisch alle
+//   Ressourcen. Es sieht so aus, als gäbe es im Prinzip nur eine Art Siedlungsressource, denn alle
+//   Subressourcen unterscheiden sich nur im Namen.

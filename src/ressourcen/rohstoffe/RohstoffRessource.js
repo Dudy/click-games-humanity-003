@@ -1,4 +1,4 @@
-export default class SiedlungResource {
+export default class RohstoffRessource {
     data
     domElement
 

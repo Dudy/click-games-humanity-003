@@ -1,4 +1,4 @@
-import SiedlungResource from './SiedlungResource.js'
+import SiedlungRessource from './SiedlungRessource.js'
 
 const ARBEITER_ID = 'arbeiter'
 const ANZAHL_ARBEITER_ID = 'anzahl-arbeiter'
@@ -27,7 +27,7 @@ const TEMPLATE = `
     </div>
     `
 
-export default class ArbeiterResource extends SiedlungResource {
+export default class ArbeiterRessource extends SiedlungRessource {
     kosten = {
         holz: 1,
         stein: 1,
@@ -46,6 +46,8 @@ export default class ArbeiterResource extends SiedlungResource {
         this.arbeiterErzeugenElement.addEventListener('click', () => {
             this.erzeugeArbeiter()
         })
+
+        this.updateUI()
     }
 
     erzeugeArbeiter() {
@@ -58,10 +60,6 @@ export default class ArbeiterResource extends SiedlungResource {
         }
 
         this.globalUiUpdate()
-    }
-
-    freieArbeiter() {
-        return this.data.arbeiter - this.data.holzArbeiter - this.data.steinArbeiter - this.data.fleischArbeiter
     }
 
     updateUI() {

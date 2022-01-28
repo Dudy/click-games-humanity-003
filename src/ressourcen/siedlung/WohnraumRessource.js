@@ -1,4 +1,4 @@
-import SiedlungResource from './SiedlungResource.js'
+import SiedlungRessource from './SiedlungRessource.js'
 
 const WOHNRAUM_ID = 'wohnraum'
 const ANZAHL_WOHNRAUM_ID = 'anzahl-wohnraum'
@@ -27,7 +27,7 @@ const TEMPLATE = `
     </div>
 `
 
-export default class WohnraumResource extends SiedlungResource {
+export default class WohnraumRessource extends SiedlungRessource {
     kosten = {
         holz: 20,
         stein: 10,
@@ -46,6 +46,8 @@ export default class WohnraumResource extends SiedlungResource {
         this.wohnhaus1BauenElement.addEventListener('click', () => {
             this.baueWohnraum()
         })
+
+        this.updateUI()
     }
 
     baueWohnraum() {
